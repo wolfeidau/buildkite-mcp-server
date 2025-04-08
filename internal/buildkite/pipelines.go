@@ -14,7 +14,7 @@ import (
 
 func ListPipeline(ctx context.Context, client *buildkite.Client) (tool mcp.Tool, handler server.ToolHandlerFunc) {
 	return mcp.NewTool("list_pipelines",
-			mcp.WithDescription("List all pipelines in an organization"),
+			mcp.WithDescription("List all pipelines in a buildkite organization"),
 			mcp.WithString("org",
 				mcp.Required(),
 				mcp.Description("The organization slug for the owner of the pipeline"),

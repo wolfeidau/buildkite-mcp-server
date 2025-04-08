@@ -19,6 +19,7 @@ func (c *StdioCmd) Run(ctx context.Context, globals *Globals) error {
 		server.WithLogging())
 
 	s.AddTool(buildkite.GetPipeline(ctx, globals.Client))
+	s.AddTool(buildkite.ListPipeline(ctx, globals.Client))
 
 	return server.ServeStdio(s)
 }
