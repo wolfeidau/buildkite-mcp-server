@@ -7,6 +7,10 @@ This is an mcp server for buildkite.
 * `get_pipeline` - Get details of a specific pipeline in Buildkite
 * `list_pipelines` - List all pipelines in a buildkite organization
 
+Example of the `get_pipeline` tool in action.
+
+![Get Pipeline Tool](docs/images/get_pipeline.png)
+
 # prerequisites
 
 * [goreleaser](http://goreleaser.com)
