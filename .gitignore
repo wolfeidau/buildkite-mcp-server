@@ -1,0 +1,5 @@
+dist/
+.envrc*
+.vscode
+vendor/
+*.zip
