@@ -4,3 +4,4 @@ dist/
 vendor/
 *.zip
 .bk.yaml
+/buildkite-mcp-server
