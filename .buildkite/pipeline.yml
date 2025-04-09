@@ -1,0 +1,49 @@
+env:
+  GOPATH: /root/go
+
+common:
+  - zipstash_pkg_plugin: &zipstash-pkg
+      wolfeidau/zipstash#main:
+        id: go-pkg-mod
+        key: "{{ id }}-{{ checksum 'go.mod' }}"
+        fallback-branch: main
+        paths: |
+          ~/go/pkg/mod
+        endpoint: $ENDPOINT
+        repo: wolfeidau/zipstash
+        clean: true
+  - zipstash_build_plugin: &zipstash-build
+      wolfeidau/zipstash#main:
+        id: go-build
+        key: "{{ id }}-$BUILDKITE_BUILD_ID"
+        fallback-branch: main
+        paths: |
+          ~/.cache/go-build
+        endpoint: $ENDPOINT
+        repo: wolfeidau/zipstash
+        clean: true
+
+steps:
+  - group: ':mag: QA'
+    id: quality_assurance
+    steps:
+    - key: go_mod_download
+      command: .buildkite/scripts/build.sh
+      label: ':golang: mod download and build'
+      plugins:
+        - *zipstash-pkg
+        - *zipstash-build
+    - key: lint
+      label: ':golang: ci lint'
+      command: golangci-lint run ./...
+      plugins:
+        - *zipstash-pkg
+        - *zipstash-build
+      depends_on: go_mod_download
+    - key: test
+      label: ':golang: test'
+      command: go test -v -cover ./...
+      plugins:
+        - *zipstash-pkg
+        - *zipstash-build
+      depends_on: go_mod_download
