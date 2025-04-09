@@ -11,5 +11,14 @@ snapshot:
 run:
 	go run cmd/buildkite-mcp-server/main.go stdio
 
+.PHONY: test
 test:
-	go test ./... -v
+	go test -coverprofile coverage.out -covermode atomic -v ./...
+
+.PHONY: lint
+lint:
+	golangci-lint run ./...
+
+.PHONY: lint-fix
+lint-fix:
+	golangci-lint run --fix ./...

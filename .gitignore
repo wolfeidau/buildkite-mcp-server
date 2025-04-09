@@ -5,3 +5,4 @@ vendor/
 *.zip
 .bk.yaml
 /buildkite-mcp-server
+coverage.out
