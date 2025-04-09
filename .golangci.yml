@@ -1,9 +1,5 @@
 version: "2"
 linters:
-  settings:
-    govet:
-      enable:
-        - fieldalignment
   exclusions:
     generated: lax
     presets:
