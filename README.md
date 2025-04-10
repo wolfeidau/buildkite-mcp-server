@@ -6,6 +6,8 @@ This is an [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introd
 
 * `get_pipeline` - Get details of a specific pipeline in Buildkite
 * `list_pipelines` - List all pipelines in a buildkite organization
+* `list_builds` - List all builds in a pipeline in Buildkite
+* `list_pipelines` - List all pipelines in a buildkite organization
 
 Example of the `get_pipeline` tool in action.
 
