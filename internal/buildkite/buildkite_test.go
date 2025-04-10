@@ -22,18 +22,58 @@ func Test_requiredParam(t *testing.T) {
 }
 
 func Test_optionalPaginationParams(t *testing.T) {
-	assert := require.New(t)
-	req := createMCPRequest(t, map[string]any{
-		"page":    1,
-		"perPage": 30,
-	})
+	tests := []struct {
+		name      string
+		args      map[string]any
+		expected  buildkite.ListOptions
+		expectErr bool
+	}{
+		{
+			name: "valid pagination parameters",
+			args: map[string]any{
+				"page":    float64(1),
+				"perPage": float64(31),
+			},
+			expected: buildkite.ListOptions{
+				Page:    1,
+				PerPage: 31,
+			},
+			expectErr: false,
+		},
+		{
+			name: "missing pagination parameters should use defaults",
+			args: map[string]any{},
+			expected: buildkite.ListOptions{
+				Page:    1,
+				PerPage: 30,
+			},
+			expectErr: false,
+		},
+		{
+			name: "invalid pagination parameters",
+			args: map[string]any{
+				"page":    "invalid",
+				"perPage": "invalid",
+			},
+			expected:  buildkite.ListOptions{},
+			expectErr: true,
+		},
+	}
 
-	opts, err := optionalPaginationParams(req)
-	assert.NoError(err)
-	assert.Equal(buildkite.ListOptions{
-		Page:    1,
-		PerPage: 30,
-	}, opts)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert := require.New(t)
+			req := createMCPRequest(t, tt.args)
+
+			opts, err := optionalPaginationParams(req)
+			if tt.expectErr {
+				assert.Error(err)
+			} else {
+				assert.NoError(err)
+				assert.Equal(tt.expected, opts)
+			}
+		})
+	}
 }
 
 func createMCPRequest(t *testing.T, args map[string]any) mcp.CallToolRequest {

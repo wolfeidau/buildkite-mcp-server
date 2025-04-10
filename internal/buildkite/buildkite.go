@@ -2,6 +2,8 @@ package buildkite
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
 
 	"github.com/buildkite/go-buildkite/v4"
 	"github.com/mark3labs/mcp-go/mcp"
@@ -30,11 +32,11 @@ func requiredParam[T comparable](request mcp.CallToolRequest, name string) (T, e
 }
 
 func optionalPaginationParams(r mcp.CallToolRequest) (buildkite.ListOptions, error) {
-	page, err := optionalParamWithDefault(r, "page", 1)
+	page, err := optionalIntParamWithDefault(r, "page", 1)
 	if err != nil {
 		return buildkite.ListOptions{}, err
 	}
-	perPage, err := optionalParamWithDefault(r, "perPage", 30)
+	perPage, err := optionalIntParamWithDefault(r, "perPage", 30)
 	if err != nil {
 		return buildkite.ListOptions{}, err
 	}
@@ -44,17 +46,28 @@ func optionalPaginationParams(r mcp.CallToolRequest) (buildkite.ListOptions, err
 	}, nil
 }
 
-func optionalParamWithDefault[T comparable](r mcp.CallToolRequest, name string, defaultValue T) (T, error) {
-	if r.Params.Arguments[name] == nil {
+func optionalIntParamWithDefault(request mcp.CallToolRequest, name string, defaultValue int) (int, error) {
+	if request.Params.Arguments[name] == nil {
 		return defaultValue, nil
 	}
 
-	val, ok := r.Params.Arguments[name].(T)
-	if !ok {
-		return defaultValue, errors.New("invalid type for argument: " + name)
+	switch request.Params.Arguments[name].(type) {
+	case int:
+		// check if the value is an int
+		return request.Params.Arguments[name].(int), nil
+	case float64:
+		return int(request.Params.Arguments[name].(float64)), nil
+	case string:
+		// check if the value is a string
+		// convert to int
+		val, err := strconv.Atoi(request.Params.Arguments[name].(string))
+		if err != nil {
+			return defaultValue, errors.New("invalid value for argument: " + name + ", must be an integer")
+		}
+		return val, nil
+	default:
+		return defaultValue, fmt.Errorf("invalid type: %T for argument: %s", request.Params.Arguments[name], name)
 	}
-
-	return val, nil
 }
 
 func withPagination() mcp.ToolOption {
