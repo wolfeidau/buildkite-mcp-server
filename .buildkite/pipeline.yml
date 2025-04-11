@@ -1,0 +1,58 @@
+agents:
+  queue: hosted
+
+cache:
+  name: "golang-cache"
+  paths:
+    - "~/gocache"
+    - "~/gomodcache"
+  size: "100g"
+
+steps:
+  - name: ":golangci-lint: lint"
+    command: golangci-lint run --verbose --timeout 3m
+    plugins:
+      - docker-compose#v5.2.0:
+          config: .buildkite/docker-compose.yaml
+          run: golangci-lint
+          tty: true
+
+  - name: ":go: test"
+    artifact_paths:
+      - cover-tree.svg
+    commands:
+      - go test -coverprofile cover.out ./...
+      - go run github.com/nikolaydubina/go-cover-treemap@latest -coverprofile cover.out > cover-tree.svg
+      - echo '<details><summary>Coverage tree map</summary><img src="artifact://cover-tree.svg" alt="Test coverage tree map" width="70%"></details>' | buildkite-agent annotate --style "info"
+    plugins:
+      -  docker-compose#v5.2.0:
+          config: .buildkite/docker-compose.yaml
+          run: golangci-lint
+          tty: true
+          mount-buildkite-agent: true
+
+  - wait
+
+  - label: ":terminal: build ({{matrix}})"
+    matrix:
+          - "darwin"
+          - "linux"
+          - "windows"
+    artifact_paths:
+      - dist/**/*
+    plugins:
+      - docker-compose#v5.2.0:
+          command:
+            - .buildkite/release.sh
+            - release
+            - --clean
+            - --snapshot
+            - --split
+          config: .buildkite/docker-compose.yaml
+          entrypoint: /bin/sh
+          env:
+            - GOOS={{matrix}}
+          mount-buildkite-agent: true
+          run: goreleaser
+          shell: false
+          tty: true
