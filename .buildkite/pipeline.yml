@@ -49,7 +49,7 @@ steps:
             - --snapshot
             - --split
           config: .buildkite/docker-compose.yaml
-          entrypoint: /bin/sh
+          entrypoint: /bin/bash
           env:
             - GOOS={{matrix}}
           mount-buildkite-agent: true

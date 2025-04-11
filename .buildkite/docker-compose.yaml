@@ -12,7 +12,9 @@ services:
       - GOCACHE=/gocache
       - GOMODCACHE=/gomodcache
   goreleaser:
-    image: goreleaser/goreleaser-pro:v2.8.2
+    build:
+      context: .
+      dockerfile: Dockerfile.build
     environment:
       - BUILDKITE_AGENT_JOB_API_SOCKET
       - BUILDKITE_AGENT_JOB_API_TOKEN
