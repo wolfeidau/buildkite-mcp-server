@@ -90,3 +90,14 @@ func createMCPRequest(t *testing.T, args map[string]any) mcp.CallToolRequest {
 		},
 	}
 }
+
+func getTextResult(t *testing.T, result *mcp.CallToolResult) mcp.TextContent {
+	t.Helper()
+	textContent, ok := result.Content[0].(mcp.TextContent)
+	if !ok {
+		t.Error("expected text content")
+		return mcp.TextContent{}
+	}
+
+	return textContent
+}
